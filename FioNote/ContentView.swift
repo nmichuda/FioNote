@@ -8,17 +8,36 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Welcome to FioNote!!")
-        }
-        .padding()
-    }
-}
+    @StateObject private var viewModel = NoteViewModel()
+    @State private var showingAddNote = false
 
-#Preview {
-    ContentView()
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(viewModel.notes) { note in
+                    VStack(alignment: .leading) {
+                        Text(note.title)
+                            .font(.headline)
+                        Text(note.content)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .onDelete(perform: viewModel.deleteNote)
+            }
+            .navigationTitle("Fionote")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        showingAddNote = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddNote) {
+                AddNoteView(viewModel: viewModel)
+            }
+        }
+    }
 }
