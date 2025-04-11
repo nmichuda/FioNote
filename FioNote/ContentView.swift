@@ -9,7 +9,10 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = NoteViewModel()
+    @StateObject private var userSettings = UserSettings()
+
     @State private var showingAddNote = false
+    @State private var showingSettings = false
 
     var body: some View {
         NavigationView {
@@ -17,17 +20,25 @@ struct ContentView: View {
                 ForEach(viewModel.notes) { note in
                     VStack(alignment: .leading) {
                         Text(note.title)
-                            .font(.headline)
+                            .font(userSettings.selectedFont.font.weight(.bold))
                         Text(note.content)
-                            .font(.subheadline)
+                            .font(userSettings.selectedFont.font)
                             .foregroundColor(.secondary)
                     }
+                    .padding(5)
                 }
                 .onDelete(perform: viewModel.deleteNote)
             }
+            .background(userSettings.selectedColor)
             .navigationTitle("Fionote")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "gearshape")
+                    }
+
                     Button(action: {
                         showingAddNote = true
                     }) {
@@ -37,6 +48,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingAddNote) {
                 AddNoteView(viewModel: viewModel)
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView(userSettings: userSettings)
             }
         }
     }
